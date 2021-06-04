@@ -3,15 +3,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:pharmacy_manager/pages/login/authentication.dart';
 
+import 'models/drug.dart';
+
 class ApplicationState with ChangeNotifier {
-
-
-
   ApplicationState() {
     init();
   }
-
-
 
   ApplicationLoginState _loginState = ApplicationLoginState.notKnown;
 
@@ -21,6 +18,19 @@ class ApplicationState with ChangeNotifier {
 
   String? get email => _email;
 
+  List<Drug> drugs = [];
+
+  void addDummyDrug() {
+    drugs.add(
+      Drug(
+          serialNumber: '1111111111',
+          name: 'dummy drug ${drugs.length + 1}',
+          timeOut: DateTime.now().millisecond,
+          description: "dummy very very long description"),
+    );
+    notifyListeners();
+  }
+
   Future<void> init() async {
     await Firebase.initializeApp();
 
@@ -28,10 +38,11 @@ class ApplicationState with ChangeNotifier {
       if (user != null) {
         _loginState = ApplicationLoginState.loggedIn;
         // Navigator.pushNamed(context, "/home");
-       } else {
+      } else {
         _loginState = ApplicationLoginState.loggedOut;
         // Navigator.pushNamed(context, "/login");
       }
+
       notifyListeners();
     });
   }

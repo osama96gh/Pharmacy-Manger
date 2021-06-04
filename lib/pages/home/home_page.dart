@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmacy_manager/app_state.dart';
 import 'package:pharmacy_manager/pages/login/authentication.dart';
+import 'package:pharmacy_manager/utilities/widgets.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {
@@ -15,7 +16,12 @@ class HomePage extends StatelessWidget {
       body: Consumer<ApplicationState>(builder: (context, appState, child) {
         switch (appState.loginState) {
           case ApplicationLoginState.loggedIn:
-            return Text('logged in');
+            return ListView.builder(
+              itemBuilder: (context, index) {
+                return DrugCard(drug: appState.drugs[index]);
+              },
+              itemCount: appState.drugs.length,
+            );
 
           case ApplicationLoginState.notKnown:
             return Center(child: CircularProgressIndicator());
@@ -24,6 +30,12 @@ class HomePage extends StatelessWidget {
             return Text("This Should Not happen");
         }
       }),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          Provider.of<ApplicationState>(context, listen: false).addDummyDrug();
+        },
+      ),
     );
   }
 }
