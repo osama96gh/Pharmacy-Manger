@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +12,8 @@ class ApplicationState with ChangeNotifier {
   ApplicationState() {
     init();
   }
+
+  StreamSubscription<QuerySnapshot>? _drugsSubscription;
 
   ApplicationLoginState _loginState = ApplicationLoginState.notKnown;
 
@@ -23,12 +28,34 @@ class ApplicationState with ChangeNotifier {
   void addDummyDrug() {
     drugs.add(
       Drug(
-          serialNumber: '1111111111',
+          serial: '1111111111',
           name: 'dummy drug ${drugs.length + 1}',
-          timeOut: DateTime.now().millisecond,
+          expiredAt: DateTime.now().millisecond,
           description: "dummy very very long description"),
     );
     notifyListeners();
+  }
+
+  void addDrug(Drug drug) {
+    drugs.add(drug);
+    notifyListeners();
+  }
+
+  Future<DocumentReference> addDrugToFirestore(Drug drug) {
+    if (_loginState != ApplicationLoginState.loggedIn) {
+      throw Exception('Must be logged in');
+    }
+
+    return FirebaseFirestore.instance
+        .collection('Users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("Drugs")
+        .add({
+      'name': drug.name,
+      'serial': drug.serial,
+      'expiredAt': drug.expiredAt,
+      'description': drug.description,
+    });
   }
 
   Future<void> init() async {
@@ -37,7 +64,26 @@ class ApplicationState with ChangeNotifier {
     FirebaseAuth.instance.userChanges().listen((user) {
       if (user != null) {
         _loginState = ApplicationLoginState.loggedIn;
-        // Navigator.pushNamed(context, "/home");
+        _drugsSubscription = FirebaseFirestore.instance
+            .collection('Users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection("Drugs")
+            .orderBy('expiredAt', descending: true)
+            .snapshots()
+            .listen((snapshot) {
+          drugs = [];
+          snapshot.docs.forEach((document) {
+            drugs.add(
+              Drug(
+                name: document.data()['name'],
+                serial: document.data()['serial'],
+                expiredAt: document.data()['expiredAt'],
+                description: document.data()['description'],
+              ),
+            );
+          });
+          notifyListeners();
+        });
       } else {
         _loginState = ApplicationLoginState.loggedOut;
         // Navigator.pushNamed(context, "/login");

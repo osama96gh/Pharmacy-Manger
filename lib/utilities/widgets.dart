@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pharmacy_manager/models/drug.dart';
 
 class Header extends StatelessWidget {
@@ -71,30 +72,83 @@ class StyledButton extends StatelessWidget {
 class DrugCard extends StatelessWidget {
   final Drug drug;
 
-  const DrugCard({Key? key, required this.drug}) : super(key: key);
+  DrugCard({Key? key, required this.drug}) : super(key: key);
+  final DateFormat formatter = DateFormat('yyyy-MM-dd');
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: [
-          Text(
-            drug.name,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Text(
+                    drug.name,textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,),
+                  ),
+                ),
+              ),
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Row(
+                  children: [
+                    Expanded(flex: 25,child: Text("Serial: ")),
+                    Expanded(flex: 75,
+                      child: Text(
+                        drug.serial,
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Row(
+                  children: [
+                    Expanded(flex: 25,child: Text("Expire at: ")),
+                    Expanded(flex: 75,
+                      child: Text(
+                        formatter.format(DateTime.fromMillisecondsSinceEpoch(
+                            drug.expiredAt)),
+                        style:
+                            TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ( drug.description == null || drug.description!.isEmpty)
+                  ? SizedBox()
+                  : Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                              flex: 25,
+                              child: Text("Description: ")),
+                          Expanded(
+                            flex:75,
+                            child: Text(
+                              drug.description!,
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ],
           ),
-          Text(
-            drug.serialNumber,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
-          ),
-          Text(
-            drug.timeOut.toString(),
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
-          ),
-          Text(
-            drug.description!,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-        ],
+        ),
       ),
     );
   }

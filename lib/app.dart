@@ -31,7 +31,7 @@ class App extends StatelessWidget {
                   switch (appState.loginState) {
                     case ApplicationLoginState.loggedIn:
                     case ApplicationLoginState.notKnown:
-                      return HomePage();
+                       return HomePage();
                     default:
                       return LoginPage();
                   }

@@ -1,13 +1,13 @@
 class Drug {
-  String serialNumber;
+  String serial;
   String name;
   String? description;
-  int timeOut;
+  int expiredAt;
 
   Drug({
-    required this.serialNumber,
+    required this.serial,
     required this.name,
-    required this.timeOut,
+    required this.expiredAt,
     this.description,
   });
 }
