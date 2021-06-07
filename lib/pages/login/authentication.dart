@@ -1,16 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pharmacy_manager/utilities/enums.dart';
 
 import '../../utilities/widgets.dart';
 
-enum ApplicationLoginState {
-  notKnown,
-  loggedOut,
-  emailAddress,
-  register,
-  password,
-  loggedIn,
-}
+
 
 class Authentication extends StatelessWidget {
   const Authentication({

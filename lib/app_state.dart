@@ -4,8 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:pharmacy_manager/pages/login/authentication.dart';
-
+import 'package:pharmacy_manager/utilities/enums.dart';
 import 'models/drug.dart';
 
 class ApplicationState with ChangeNotifier {
@@ -58,6 +57,35 @@ class ApplicationState with ChangeNotifier {
     });
   }
 
+  Future<void> editDrugOnFirestore(Drug drug) {
+    if (_loginState != ApplicationLoginState.loggedIn) {
+      throw Exception('Must be logged in');
+    }
+
+    return FirebaseFirestore.instance
+        .collection('Users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("Drugs").doc(drug.id)
+        .update({
+      'name': drug.name,
+      'serial': drug.serial,
+      'expiredAt': drug.expiredAt,
+      'description': drug.description,
+    });
+  }
+
+  Future<void> deleteDrugFromFirestore(Drug drug) {
+    if (_loginState != ApplicationLoginState.loggedIn) {
+      throw Exception('Must be logged in');
+    }
+
+    return FirebaseFirestore.instance
+        .collection('Users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("Drugs").doc(drug.id).delete();
+
+  }
+
   Future<void> init() async {
     await Firebase.initializeApp();
 
@@ -68,13 +96,14 @@ class ApplicationState with ChangeNotifier {
             .collection('Users')
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .collection("Drugs")
-            .orderBy('expiredAt', descending: true)
+            .orderBy('expiredAt', descending: false)
             .snapshots()
             .listen((snapshot) {
           drugs = [];
           snapshot.docs.forEach((document) {
             drugs.add(
               Drug(
+                id:document.id,
                 name: document.data()['name'],
                 serial: document.data()['serial'],
                 expiredAt: document.data()['expiredAt'],

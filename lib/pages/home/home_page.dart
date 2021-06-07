@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:pharmacy_manager/app_state.dart';
-import 'package:pharmacy_manager/pages/add_drug/add_drug.dart';
-import 'package:pharmacy_manager/pages/login/authentication.dart';
 import 'package:pharmacy_manager/pages/qr/qr_screen.dart';
 import 'package:pharmacy_manager/utilities/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:pharmacy_manager/utilities/enums.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,6 +13,28 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Home Page"),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (String value) {
+              switch (value) {
+                case 'Logout':
+                  Provider.of<ApplicationState>(context,listen: false).signOut();
+                  break;
+                case 'Settings':
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('not implemented yet!')));
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return {'Logout', 'Settings'}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice,),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: Consumer<ApplicationState>(builder: (context, appState, child) {
         switch (appState.loginState) {

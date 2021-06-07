@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pharmacy_manager/pages/home/home_page.dart';
 import 'package:pharmacy_manager/app_state.dart';
-import 'package:pharmacy_manager/pages/login/authentication.dart';
-import 'package:pharmacy_manager/pages/login/login_page.dart';
+ import 'package:pharmacy_manager/pages/login/login_page.dart';
 import 'package:provider/provider.dart';
+import 'package:pharmacy_manager/utilities/enums.dart';
 
 class App extends StatelessWidget {
   @override
@@ -15,10 +15,10 @@ class App extends StatelessWidget {
           title: 'Firebase Meetup',
           theme: ThemeData(
             buttonTheme: Theme.of(context).buttonTheme.copyWith(
-                  highlightColor: Colors.deepPurple,
+                  highlightColor: Colors.blueGrey,
                 ),
-            primarySwatch: Colors.deepPurple,
-            textTheme: GoogleFonts.tajawalTextTheme(
+            primarySwatch: Colors.blueGrey,
+            textTheme: GoogleFonts.robotoTextTheme(
               Theme.of(context).textTheme,
             ),
             visualDensity: VisualDensity.adaptivePlatformDensity,
