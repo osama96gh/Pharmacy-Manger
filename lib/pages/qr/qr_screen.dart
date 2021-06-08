@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmacy_manager/pages/add_drug/add_drug.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -34,7 +33,28 @@ class _QRViewExampleState extends State<QRViewExample> {
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: <Widget>[
-          Expanded( child: _buildQrView(context)),
+          Builder(
+            builder: (context) {
+              var scanArea = (MediaQuery.of(context).size.width < 400 ||
+                      MediaQuery.of(context).size.height < 400)
+                  ? 150.0
+                  : 300.0;
+
+              // var scanArea =min(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height)*0.8;
+              // To ensure the Scanner view is properly sizes after rotation
+              // we need to listen for Flutter SizeChanged notification and update controller
+              return QRView(
+                key: qrKey,
+                onQRViewCreated: _onQRViewCreated,
+                overlay: QrScannerOverlayShape(
+                    borderColor: Colors.red,
+                    borderRadius: 10,
+                    borderLength: 30,
+                    borderWidth: 10,
+                    cutOutSize: scanArea),
+              );
+            },
+          ),
           FittedBox(
             fit: BoxFit.contain,
             child: Column(
@@ -59,7 +79,14 @@ class _QRViewExampleState extends State<QRViewExample> {
                           icon: FutureBuilder(
                             future: controller?.getFlashStatus(),
                             builder: (context, snapshot) {
-                              return Icon(snapshot.data as bool?Icons.flash_on:Icons.flash_off,color: Colors.white,);
+                              return Icon(
+                                snapshot.data == null
+                                    ? Icons.flash_on
+                                    : snapshot.data as bool
+                                        ? Icons.flash_on
+                                        : Icons.flash_off,
+                                color: Colors.white,
+                              );
                             },
                           )),
                     ),
@@ -116,42 +143,21 @@ class _QRViewExampleState extends State<QRViewExample> {
     );
   }
 
-  Widget _buildQrView(BuildContext context) {
-    // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
-    var scanArea = (MediaQuery.of(context).size.width < 400 ||
-        MediaQuery.of(context).size.height < 400)
-        ? 150.0
-        : 300.0;
-
-    // var scanArea =min(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height)*0.8;
-    // To ensure the Scanner view is properly sizes after rotation
-    // we need to listen for Flutter SizeChanged notification and update controller
-    return QRView(
-      key: qrKey,
-      onQRViewCreated: _onQRViewCreated,
-      overlay: QrScannerOverlayShape(
-          borderColor: Colors.red,
-          borderRadius: 10,
-          borderLength: 30,
-          borderWidth: 10,
-          cutOutSize: scanArea),
-    );
-  }
-
   void _onQRViewCreated(QRViewController controller) {
     setState(() {
       this.controller = controller;
     });
     controller.scannedDataStream.listen((scanData) {
-
-        result = scanData;
-        print(result!.code);
-        if (result !=null && result!.code.isNotEmpty){
-          controller.dispose();
-          Route route = MaterialPageRoute(builder: (context) => AddDrugScreen(serialNumber: result!.code,));
-          Navigator.pushReplacement(context, route);
-        }
-
+      result = scanData;
+      print(result!.code);
+      if (result != null && result!.code.isNotEmpty) {
+        controller.dispose();
+        Route route = MaterialPageRoute(
+            builder: (context) => AddDrugScreen(
+                  serialNumber: result!.code,
+                ));
+        Navigator.pushReplacement(context, route);
+      }
     });
   }
 
